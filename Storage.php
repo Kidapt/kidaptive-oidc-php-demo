@@ -8,6 +8,8 @@
 
 class Storage extends OAuth2\Storage\Pdo
 {
+    const USER_KEYS = array('sub', 'name');
+    const LEARNER_KEYS = array('sub', 'name', 'gender', 'birthdate');
     /**
      * Storage constructor. Initializes the database connection.
      */
@@ -48,6 +50,17 @@ class Storage extends OAuth2\Storage\Pdo
      */
     public function getUser($userId)
     {
+        $stmt = $this->db->prepare("select id sub, name, user_prop_1, user_prop_2 from user_info where id = :userId");
+
+        $stmt->execute(array('userId'=>$userId));
+        if ($userInfo = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            //all properties not included in USER_KEYS are put in preferences
+            $userInfo['preferences'] = array_diff_key($userInfo, array_intersect_key($userInfo, array_flip(Storage::USER_KEYS)));
+            //remove everything bu USER_KEYS and preferences
+            $userInfo = array_intersect_key($userInfo, array_flip(array_merge(Storage::USER_KEYS, array('preferences'))));
+            $userInfo['learners'] = $this->getLearnerInfo($userId);
+            return $userInfo;
+        }
         return false;
     }
 
@@ -68,7 +81,19 @@ class Storage extends OAuth2\Storage\Pdo
      * @return array array of associative arrays representing learners
      */
     private function getLearnerInfo($userId) {
-        return array();
+        $stmt = $this->db->prepare("select id sub, name, gender, birthdate, learner_prop_1, learner_prop_2 from learner_info where user_id = :userId");
+        $stmt->execute(array('userId'=>$userId));
+        $learners = array();
+        if ($learnerList = $stmt->fetchAll(PDO::FETCH_ASSOC)) {
+            foreach ($learnerList as $learnerInfo) {
+                //all properties not included in LEARNER_KEYS are put in preferences
+                $learnerInfo['preferences'] = array_diff_key($learnerInfo, array_intersect_key($learnerInfo, array_flip(Storage::LEARNER_KEYS)));
+                //remove everything but LEARNER_KEYS and preferences
+                $learnerInfo = array_intersect_key($learnerInfo, array_flip(array_merge(Storage::LEARNER_KEYS, array('preferences'))));
+                array_push($learners, $learnerInfo);
+            }
+        }
+        return $learners;
     }
 
     /**
