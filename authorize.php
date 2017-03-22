@@ -9,6 +9,12 @@
 require_once 'server.php';
 
 $request = OAuth2\Request::createFromGlobals();
+
+//dirty hack to fix issue where library doesn't pick up nonce parameter in POST requests
+if (array_key_exists('nonce', $request->request)) {
+    $request->query['nonce'] = $request->request['nonce'];
+}
+
 $auth = false;
 $userId = false;
 
