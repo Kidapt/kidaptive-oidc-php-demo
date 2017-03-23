@@ -50,10 +50,19 @@ class Storage extends OAuth2\Storage\Pdo
      */
     public function getUser($userId)
     {
-        $stmt = $this->db->prepare("select id sub, full_name name, user_prop_1, user_prop_2 from user_info where id = :userId");
+        if (!$userId) {
+            return false;
+        }
+        $stmt = $this->db->prepare("select full_name name, user_prop_1, user_prop_2 from user_info where id = :userId");
 
         $stmt->execute(array('userId'=>$userId));
         if ($userInfo = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            //if sub is returned, make sure it matches userId, populate with userId if not
+            if (!array_key_exists('sub', $userInfo)) {
+                $userInfo['sub'] = $userId;
+            } else if ($userInfo['sub'] != $userId) {
+                return false;
+            }
             //all properties not included in USER_KEYS are put in preferences
             $userInfo['preferences'] = array_diff_key($userInfo, array_intersect_key($userInfo, array_flip(Storage::USER_KEYS)));
             //remove everything bu USER_KEYS and preferences
@@ -86,6 +95,10 @@ class Storage extends OAuth2\Storage\Pdo
         $learners = array();
         if ($learnerList = $stmt->fetchAll(PDO::FETCH_ASSOC)) {
             foreach ($learnerList as $learnerInfo) {
+                //skip this learner if it does not have 'sub'
+                if (!array_key_exists('sub', $learnerInfo) || !$learnerInfo['sub']) {
+                    continue;
+                }
                 //all properties not included in LEARNER_KEYS are put in preferences
                 $learnerInfo['preferences'] = array_diff_key($learnerInfo, array_intersect_key($learnerInfo, array_flip(Storage::LEARNER_KEYS)));
                 //remove everything but LEARNER_KEYS and preferences
