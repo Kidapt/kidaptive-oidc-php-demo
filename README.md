@@ -29,9 +29,31 @@ tables have been added. These are used to store various information during the O
 
 Now `authorize.php`, `token.php`, and `userInfo.php` are set up to accept authorization, token, and userInfo requests.
 
-[//]:<>(### <a name="test"></a>Testing your configuration
-Run `php -S localhost:8000`. This starts a standalone PHP server that listens on port 8000 on localhost. `localhost:8000`
-can be replaced with any address/port that resolves to your server.)
+### <a name="test"></a>Testing your configuration
+Run `php -S localhost:8000`. This starts a standalone PHP server that listens on port 8000 on localhost. Run `sh test.sh`
+to run the test. If everything is set up correctly, you should see output similar to this:
+```text
+Testing authentication...
+Success!
+Testing token...
+eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOiI3MjUyMTMxMjU2MTA3MDQ3ODc2IiwiYXVkIjoiSVo0TXRpTm9
+hWmtnIiwiaWF0IjoxNDkwMjk1ODYzLCJleHAiOjE0OTAyOTk0NjMsImF1dGhfdGltZSI6MTQ5MDI5NTg2Mywibm9uY2UiOiJENnh6SnF6b09ZSllQbWE1RGl
+3TTRcL3B0OFc2cURiXC92dkxmcnJXb1JEdUVkIn0.v1YUtRWJP_tWK7CqoHsiOs4fkvnY4r0unUrt1F7oyKLUvCYs-3zGmtq5OSGGZDS0zuhIFlWPWPGPvdw
+5wRMgvSF68k2URZOjCUxn_DrtvyXKS6yLdHFzDleF6qNc_-glwzIOPDXUUuU1EPEHvW5fhE3jua0XGz2WR5p41HDKgTuaNGCZmnlVdDbkppLO8wFeyQAHXyZ
+yHYaUULDUuRpizpPx87MCa0oCCiemtwqie2hNXVYVVne1gOWyQVzRi_F3yp3RiPss6i3O3WiOGS0O7wGt9bGW1IN3zmPAIqZ_LhqOUeR2_6yT_bBTNvatQkR
+-crrldgVSx-IMqVjGaZUFCg
+Success!
+Test userInfo...
+{"name":"user1_name","sub":"7252131256107047876","preferences":{"user_prop_1":"user1_prop1","user_prop_2":"user1_prop2"}
+,"learners":[{"sub":"5627442102899668490","name":"learner1","gender":"decline","birthdate":"2009-04-01","preferences":{"
+learner_prop_1":"learner1_prop1","learner_prop_2":"learner1_prop2"}},{"sub":"7782722190966141704","name":"learner2","gen
+der":"male","birthdate":"2008-05-01","preferences":{"learner_prop_1":"learner2_prop1","learner_prop_2":"learner2_prop2"}
+}]}
+Success!
+```
+The strings under `Testing token...` and `Testing userInfo...` are the ID token and user/learner info respectively. You
+can view the contents of the ID Token with [this tool](https://jwt.io) and the signature can be verified by pasting the 
+contents of `key.pub` into the appropriate field.
 
 ## <a name="db_int"></a>Integrating your database
 By replacing the SQLite database with your own database, you can add OIDC functionality to your own database.
@@ -75,3 +97,5 @@ the following information to Kidaptive so they can be added to ALP:
 2. Generated `key.pub` file
 3. The hostname for your server
 4. The URLs for the authorization, token, and userInfo endpoints if you've changed them
+
+You can test your configuration by changing username, password, and endpoint variables in `test.sh`.
