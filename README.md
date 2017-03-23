@@ -27,6 +27,8 @@ contains the public key used to verify the generated ID tokens. Normally these t
 knows how to communicate with your server. In addition, `.tables` from the SQLite console shows that several `oauth_`
 tables have been added. These are used to store various information during the OIDC flow.
 
+Now `authorize.php`, `token.php`, and `userInfo.php` are set up to accept authorization, token, and userInfo requests.
+
 [//]:<>(### <a name="test"></a>Testing your configuration
 Run `php -S localhost:8000`. This starts a standalone PHP server that listens on port 8000 on localhost. `localhost:8000`
 can be replaced with any address/port that resolves to your server.)
