@@ -50,7 +50,7 @@ class Storage extends OAuth2\Storage\Pdo
      */
     public function getUser($userId)
     {
-        $stmt = $this->db->prepare("select id sub, name, user_prop_1, user_prop_2 from user_info where id = :userId");
+        $stmt = $this->db->prepare("select id sub, full_name name, user_prop_1, user_prop_2 from user_info where id = :userId");
 
         $stmt->execute(array('userId'=>$userId));
         if ($userInfo = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -81,7 +81,7 @@ class Storage extends OAuth2\Storage\Pdo
      * @return array array of associative arrays representing learners
      */
     private function getLearnerInfo($userId) {
-        $stmt = $this->db->prepare("select id sub, name, gender, birthdate, learner_prop_1, learner_prop_2 from learner_info where user_id = :userId");
+        $stmt = $this->db->prepare("select id sub, learner_name name, learner_gender gender, birthday birthdate, learner_prop_1, learner_prop_2 from learner_info where user_id = :userId");
         $stmt->execute(array('userId'=>$userId));
         $learners = array();
         if ($learnerList = $stmt->fetchAll(PDO::FETCH_ASSOC)) {
