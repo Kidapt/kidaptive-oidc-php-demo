@@ -129,4 +129,33 @@ class Storage extends OAuth2\Storage\Pdo
         }
         $statement->execute(array('key'=>$key));
     }
+
+    //Override these methods because 'order by client_id is not null' doesn't work for all SQL dialects
+    public function getPublicKey($client_id = null)
+    {
+        $stmt = $this->db->prepare($sql = sprintf('SELECT public_key FROM %s WHERE client_id=:client_id OR client_id IS NULL', $this->config['public_key_table']));
+        $stmt->execute(compact('client_id'));
+        if ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            return $result['public_key'];
+        }
+    }
+
+    public function getPrivateKey($client_id = null)
+    {
+        $stmt = $this->db->prepare($sql = sprintf('SELECT private_key FROM %s WHERE client_id=:client_id OR client_id IS NULL', $this->config['public_key_table']));
+        $stmt->execute(compact('client_id'));
+        if ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            return $result['private_key'];
+        }
+    }
+
+    public function getEncryptionAlgorithm($client_id = null)
+    {
+        $stmt = $this->db->prepare($sql = sprintf('SELECT encryption_algorithm FROM %s WHERE client_id=:client_id OR client_id IS NULL', $this->config['public_key_table']));
+        $stmt->execute(compact('client_id'));
+        if ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            return $result['encryption_algorithm'];
+        }
+        return 'RS256';
+    }
 }
